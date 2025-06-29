@@ -37,8 +37,8 @@ class BoMQTTClient:
         self.client.disconnect()
         self.logger.info(f"Disconnected from broker: {self.broker}:{self.port}")
 
-    def loop_forever(self):
-        self.client.loop_forever()
+    def loop_start(self):
+        self.client.loop_start()
         self.logger.info("MQTT Loop forever Start")
 
     def publish(self, topic: str, message: str):

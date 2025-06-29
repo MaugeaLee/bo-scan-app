@@ -11,8 +11,12 @@ logger = BoggerDevLogger(__name__).logger
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting lifespan")
-    mqtt_client = BoMQTTClient(topic="test/topic")
-    mqtt_client.start()
+    mqtt_client = BoMQTTClient(
+        broker='localhost',
+        port=1883,
+    )
+    mqtt_client.connect()
+    mqtt_client.loop_start()
 
     redis = RedisClient()
     redis.connect()
@@ -23,7 +27,7 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    mqtt_client.stop()
+    mqtt_client.disconnect()
     redis.disconnect()
 app = FastAPI(lifespan=lifespan)
 
