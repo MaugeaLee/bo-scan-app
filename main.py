@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 from API import routers
 from API.REDIS.redis_client import RedisClient
-from API.MQTT.mqtt_subscriber import MQTTClient
+from API.MQTT.mqtt_subscriber import BoMQTTClient
 from API.CONFIG.bogger import BoggerDevLogger
 
 logger = BoggerDevLogger(__name__).logger
@@ -11,7 +11,7 @@ logger = BoggerDevLogger(__name__).logger
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting lifespan")
-    mqtt_client = MQTTClient(topic="test/topic")
+    mqtt_client = BoMQTTClient(topic="test/topic")
     mqtt_client.start()
 
     redis = RedisClient()

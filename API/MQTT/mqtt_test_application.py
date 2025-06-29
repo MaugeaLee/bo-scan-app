@@ -1,6 +1,6 @@
 import logging
 from API.CONFIG.bogger import BoggerDevLogger
-from API.MQTT.mqtt_subscriber import MQTTClient
+from API.MQTT.mqtt_subscriber import BoMQTTClient
 
 from fastapi import APIRouter, Request
 
