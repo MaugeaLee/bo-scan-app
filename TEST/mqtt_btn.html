@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>>MQTT-BTN</title>
+</head>
+<body>
+    <button type="button" onclick="mqttCall()"> button </button>
+    <p id="tt_field"> True </p>
+    <script>
+        function mqttCall(){
+            const host = "localhost";
+            const port = 8001;
+            let status = true;
+
+            fetch(`http://${host}:${port}/api/test/mqtt_test/${status}`)
+                .then(response => {
+                    if (!response.ok){
+                        throw new Error("Network response wat not ok");
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    if (status == true){
+                        status = false;
+                    } else {
+                        status = true;
+                    }
+
+                    document.getElementById('tt_field').textContent = status;
+                    console.log("응답:", data);
+                    alert("요청 실패");
+                })
+                .catch(error => {
+                    console.error("오류 발생:", error);
+                    alert("요청 실패");
+                });
+        }
+    </script>
+</body>
+</html>
