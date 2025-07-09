@@ -4,7 +4,7 @@ from API.CONFIG.static import *
 
 router = APIRouter()
 
-@router.get("/device-scan")
+@router.get("/device-status")
 async def scan_device_status(request: Request):
     mqtt_client = request.app.state.mqtt_client
     mqtt_client.publish(
