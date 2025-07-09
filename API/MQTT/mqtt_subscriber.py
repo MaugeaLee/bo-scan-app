@@ -24,7 +24,7 @@ class BoMQTTClient:
 
     def on_disconnect(self, client, userdata, rc):
         self.client.unsubscribe(response_scan_topic)
-        self.logger.info("Unsubscribed from " + response_scan_topic + f"rc: {rc}")
+        self.logger.info("Unsubscribed from " + response_scan_topic + f" rc: {rc}")
 
     def on_message(self, client, userdata, msg):
         self.logger.info(f"Received message: {msg.payload.decode()} from topic: {msg.topic}")
