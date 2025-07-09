@@ -8,10 +8,12 @@ from API.CONFIG.static import *
 
 
 class BoMQTTClient:
-    def __init__(self, broker="localhost", port=1883, logger:logging.Logger=None):
+    def __init__(self, broker="localhost", port=1883, id:str=None, pw:str=None, logger:logging.Logger=None):
         self.logger = logger or BoggerDevLogger(self.__class__.__name__).logger
         self.broker = broker
         self.port = port
+        self.id = id
+        self.pw = pw
 
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
@@ -19,17 +21,49 @@ class BoMQTTClient:
         self.client.on_message = self.on_message
 
     def on_connect(self, client, userdata, flags, rc):
-        self.client.subscribe(response_scan_topic)
-        self.logger.info("Subscribed to " + response_scan_topic + f"rc: {rc}")
-
+        """
+        MQTT client 연결 콜백 함수
+        :param client: 클라이언트 인스턴스 
+        :param userdata: 사용자가 설정한 데이터 
+        :param flags: 연결 플래그
+        :param rc: 연결 결과 코드 (Reson Code)
+        """
+        if rc == 0:
+            self.client.subscribe(response_scan_topic)
+            self.logger.info("MQTT 브로커에 성공적으로 연결되었습니다.")
+        elif rc == 1:
+            self.logger.error(f"MQTT connection error rc: {rc} - 잘못된 프로토콜 버전 ")
+        elif rc == 2:
+            self.logger.erorr(f"MQTT connection error rc: {rc} -  유효하지 않은 프로토콜")
+        elif rc == 3:
+            self.logger.error(f"MQTT connection error rc: {rc} - 서버를 사용할 수 없음")
+        elif rc == 4:
+            self.logger.error(f"MQTT connection error rc: {rc} - 잘못된 사용자 이름 또는 비밀번호")
+        elif rc == 5:
+            self.logger.error(f"MQTT connection error rc: {rc} - 인증 실패")
+        else:
+            self.logger.error(f"MQTT connection error rc: {rc} - 알 수 없는 에러")
+            
     def on_disconnect(self, client, userdata, rc):
-        self.client.unsubscribe(response_scan_topic)
-        self.logger.info("Unsubscribed from " + response_scan_topic + f" rc: {rc}")
+        """
+         MQTT client disconnect 콜백 함수
+        :param client: 클라이언트 인스턴스
+        :param userdata: 사용자가 설정한 데이터
+        :param rc: 연결 해제 결과 코드
+        """
+        if rc == 0:
+            self.client.unsubscribe(response_scan_topic)
+            self.logger.info(f"MQTT client의 {response_scan_topic}가 정상적으로 종료되었습니다.")
+            self.logger.info("MQTT client가 정상적으로 연결 해제 되었습니다.")
+        else:           
+            self.logger.error(f"MQTT client disconnection error : 알 수 없는 연결 실패 rc: {rc}")
 
     def on_message(self, client, userdata, msg):
         self.logger.info(f"Received message: {msg.payload.decode()} from topic: {msg.topic}")
 
     def connect(self):
+        self.logger.debug(f"broker: {self.broker} ; port: {self.port} ; username: {self.id} ; password: {self.pw} - 본 로그는 개발 완료후 삭제해 주세요")
+        self.client.username_pw_set(username=self.id, password=self.pw)
         self.client.connect(self.broker, self.port)
         self.logger.info(f"Connected to broker: {self.broker}:{self.port}")
 
