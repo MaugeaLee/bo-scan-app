@@ -4,7 +4,7 @@ import threading
 import paho.mqtt.client as mqtt
 
 from API.CONFIG.bogger import BoggerDevLogger
-from API.CONFIG.static import *
+from API.CONFIG.static import request_scan_topic, response_scan_topic, iot_response_queue
 
 
 class BoMQTTClient:
@@ -59,11 +59,22 @@ class BoMQTTClient:
             self.logger.error(f"MQTT client disconnection error : 알 수 없는 연결 실패 rc: {rc}")
 
     def on_message(self, client, userdata, msg):
-        self.logger.info(f"Received message: {msg.payload.decode()} from topic: {msg.topic}")
+        """ 메세지 수신시의 호출 콜백 함수"""
+        try:
+            payload_str = msg.payload.decode('utf-8')
+
+            # 큐에 메세지 입력
+            iot_response_queue.put_nowait(payload_str)
+            self.logger.info(f"Received message: {msg.payload.decode()} from topic: {msg.topic} ; successfully input in queue.")
+        except Exception as e:
+            self.logger.error(f"MQTT on_message error: {e}",)
 
     def connect(self):
         self.logger.debug(f"broker: {self.broker} ; port: {self.port} ; username: {self.id} ; password: {self.pw} - 본 로그는 개발 완료후 삭제해 주세요")
-        self.client.username_pw_set(username=self.id, password=self.pw)
+        if self.id and self.pw:
+            # id, pw가 있어야 id, pw 로그인 코드 실행
+            self.client.username_pw_set(username=self.id, password=self.pw)
+            
         self.client.connect(self.broker, self.port)
         self.logger.info(f"Connected to broker: {self.broker}:{self.port}")
 
