@@ -1,4 +1,5 @@
 import logging
+import json
 import threading
 
 import paho.mqtt.client as mqtt
@@ -63,9 +64,10 @@ class BoMQTTClient:
         try:
             payload_str = msg.payload.decode('utf-8')
 
+            # 메세지 입력 전에 최대한 유효성 검증하기
             # 큐에 메세지 입력
             iot_response_queue.put_nowait(payload_str)
-            self.logger.info(f"Received message: {msg.payload.decode()} from topic: {msg.topic} ; successfully input in queue.")
+            self.logger.info(f"Received message ; from topic: {msg.topic} ; successfully input in queue.")
         except Exception as e:
             self.logger.error(f"MQTT on_message error: {e}",)
 
