@@ -87,7 +87,7 @@ class BoMQTTClient:
         self.logger.info("MQTT Loop forever Start")
 
     def publish(self, topic: str, message: str):
-        self.client.publish(topic, message, qos=1, retain=True)
+        self.client.publish(topic, message, qos=1) # 기존 메세지 저장해 두는 것, retain=True)
         self.logger.info(f"Published to topic: {topic}  / message: {message}")
 
 
