@@ -63,11 +63,27 @@ class BoMQTTClient:
         """ 메세지 수신시의 호출 콜백 함수"""
         try:
             payload_str = msg.payload.decode('utf-8')
+            try:
+                # 메세지 입력 전에 최대한 유효성 검증하기
+                payload_json = json.loads(payload_str)
+                try:
+                    header_answer = ["device_info", "time_stamp", "topic"]
+                    header_keys = payload_json.keys()
 
-            # 메세지 입력 전에 최대한 유효성 검증하기
-            # 큐에 메세지 입력
-            iot_response_queue.put_nowait(payload_str)
-            self.logger.info(f"Received message ; from topic: {msg.topic} ; successfully input in queue.")
+                    ### yaml 유효성 검증 더 진행하기
+                    ### redis가 더 적은 용량을 메모리에 올리니 어떤게 더 적합한지 알아봐야겠다...
+
+                    # 큐에 메세지 입력
+                    iot_response_queue.put_nowait(payload_str)
+                    self.logger.info(f"Received message ; from topic: {msg.topic} ; successfully input in queue.")
+                except:
+                    self.logger.error('MQTT msg의 유효성 검증에 실패했습니다.')
+            except json.decoder.JSONDecodeError as e:
+                self.logger.error(f"MQTT on_message decoder error: {e} ; {payload_str}")
+
+            except Exception as e:
+                pass
+
         except Exception as e:
             self.logger.error(f"MQTT on_message error: {e}",)
 
