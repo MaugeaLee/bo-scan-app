@@ -21,7 +21,7 @@ async def scan_device_status(request: Request):
     timeout = 1  # 응답 대기 시간 (초)
     time.sleep(timeout) # 큐에 값이 들어오길 기다리기
 
-    response = {}
+    response = {} # 반환 값
     queuing_list = []
     while not iot_response_queue.empty():
         try:
@@ -41,5 +41,5 @@ async def scan_device_status(request: Request):
             logger.error(f'MQTT on_message error: 예상치 못한 오류 발생: {e}')
             response =  {'error': f'An unexpected error occurred: {str(e)}'}
 
-    response = {'ok': queuing_list}
+    response = {'success': queuing_list}
     return response
